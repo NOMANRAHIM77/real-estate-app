@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useContext, useState } from "react"; // Added useContext
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from 'axios'
-
 import { registerSchema } from "./schemas/authSchemas";
 import apiRequest from "../lib/apiRequest";
-
+import { AuthContext } from "../context/AuthContext"; // Import Context
 
 function Signup() {
   const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  
+  // Consume updateUser to auto-login after registration
+  const { updateUser } = useContext(AuthContext);
 
   const {
     register,
@@ -25,18 +26,25 @@ function Signup() {
     setIsLoading(true);
     setServerError("");
     try {
-      await apiRequest.post("/auth/signup", data);
+      // 1. Create the account
+      const res = await apiRequest.post("/auth/signup", data);
+      
+      // 2. Automatically log them in with the response data
+      updateUser(res.data);
+      
+      // 3. Redirect to home page instead of login
       navigate("/login");
     } catch (err) {
-      setServerError(err.response?.data?.message || "Something went wrong!");
-    } finally {
+  console.log("Full Error Object:", err); // Look at this in Browser Console
+  setServerError(err.response?.data?.message || "Internal Server Error");
+}
+    finally {
       setIsLoading(false);
     }
   };
 
   return (
     <div className="h-screen flex text-gray-800">
-      {/* Form Section */}
       <div className="flex-[3] h-full flex items-center justify-center p-4">
         <form 
           onSubmit={handleSubmit(onSubmit)} 
@@ -106,7 +114,6 @@ function Signup() {
         </form>
       </div>
 
-      {/* Image Section */}
       <div className="hidden md:flex flex-[2] bg-[#fcf5f3] items-center justify-center">
         <img 
           src='./bg.png' 

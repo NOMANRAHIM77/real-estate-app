@@ -1,16 +1,17 @@
-import { useContext, useState } from "react"; // 1. Ensure useContext is here
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "./schemas/authSchemas";
 import apiRequest from "../lib/apiRequest";
-
+import { AuthContext } from "../context/AuthContext"; 
 
 function Login() {
   const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { updateUser } = useContext(AuthContext); // 2. Consume the context
 
   const {
     register,
@@ -24,12 +25,13 @@ function Login() {
     setIsLoading(true);
     setServerError("");
     try {
-      // 5. Use apiRequest to ensure it hits http://localhost:8800/api
       const res = await apiRequest.post("/auth/login", data);
+      
+      // 3. Update the global state with user data
+      updateUser(res.data); 
       
       navigate("/");
     } catch (err) {
-      // 6. Check console if something goes wrong
       console.log(err);
       setServerError(err.response?.data?.message || "Login failed");
     } finally {
@@ -37,7 +39,7 @@ function Login() {
     }
   };
 
-  return (
+return (
     <div className="h-screen flex text-gray-800">
       <div className="flex-[3] h-full flex items-center justify-center p-4">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full max-w-md">
@@ -85,4 +87,8 @@ function Login() {
   );
 }
 
-export default Login;
+
+export default Login
+
+
+ 
