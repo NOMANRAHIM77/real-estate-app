@@ -1,12 +1,16 @@
-const express = require('express')
+import express from 'express';
+// 1. Added .js extension
+// 2. Used named imports to match your 'export const' in the controller
+import { register, login, logout } from '../controllers/auth.controller.js';
 
-const router = express.Router()
-const authController = require('../controllers/auth.controller')
+const router = express.Router();
 
-router.get("/register",authController.register)
 
-router.post("/login",authController.Login)
+router.post("/signup", register);
 
-router.post("/logout",authController.Logout)
 
-module.exports = router
+router.post("/login", login);
+
+router.post("/logout", logout);
+
+export default router;
