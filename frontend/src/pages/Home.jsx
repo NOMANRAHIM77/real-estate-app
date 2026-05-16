@@ -3,8 +3,10 @@ import SearchBar from "../components/SearchBar";
 import { AuthContext } from "../context/AuthContext";
 
 function HomePage() {
+
   const { currentUser } = useContext(AuthContext);
 
+  
   return (
     <div className="flex h-full">
       {/* TEXT CONTAINER */}
