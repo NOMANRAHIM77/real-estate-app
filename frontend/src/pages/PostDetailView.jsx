@@ -46,174 +46,339 @@ function PostDetailContent({ post }) {
     }
   };
 
-  return (
-    <div className="flex h-screen w-full bg-white md:flex-col md:h-auto md:overflow-visible overflow-hidden">
+return (
+  <div className="h-screen overflow-hidden bg-[#f8fafc]">
+    <div className="h-full grid grid-cols-1 xl:grid-cols-[1.4fr_420px]">
 
       {/* LEFT SIDE */}
-      <div className="flex-[3] h-full overflow-y-auto p-6 md:flex-none md:h-auto md:overflow-visible">
-        <div className="pr-[30px] lg:pr-0">
+      <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
 
-          <Slider images={post.images || ["/no-image.png"]} />
+        <div className="max-w-6xl mx-auto p-4 lg:p-6 space-y-5">
 
-          <div className="mt-8">
-            <div className="flex justify-between sm:flex-col sm:gap-5">
+          {/* HERO */}
+          <div className="bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-sm">
 
-              {/* POST INFO */}
-              <div className="flex flex-col gap-4">
-                <h1 className="font-normal text-3xl text-gray-900">{post.title}</h1>
-                <div className="flex items-center gap-[5px] text-[#888] text-sm">
-                  <img src="/pin.png" alt="" className="w-4 h-4" />
-                  <span>{post.address}</span>
-                </div>
-                <div className="px-3 py-1 bg-[#fece5170] rounded-md w-max text-xl font-light">
-                  $ {post.price}
-                </div>
+            {/* IMAGE */}
+            <div className="relative h-[340px] md:h-[420px] bg-gray-100">
+              <Slider images={post.images || ["/no-image.png"]} />
+
+              {/* OVERLAY */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
+
+              {/* BADGES */}
+              <div className="absolute top-4 left-4 flex gap-2 z-10">
+                <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider text-gray-800">
+                  {post.type}
+                </span>
+
+                <span className="px-3 py-1 rounded-full bg-black/40 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider text-white">
+                  {post.property}
+                </span>
               </div>
 
-              {/* USER CARD */}
-              <div className="flex flex-col items-center justify-center gap-3 px-[40px] py-4 rounded-[10px] bg-[#fece5135] font-semibold sm:py-5">
-                <img
-                  src={post.user?.avatar || "/noavatar.jpg"}
-                  alt=""
-                  className="w-[50px] h-[50px] rounded-full object-cover"
-                />
-                <span>{post.user?.username || "Agent"}</span>
+              {/* PRICE */}
+              <div className="absolute bottom-5 left-5 z-10">
+                <div className="bg-white/95 backdrop-blur-xl px-5 py-3 rounded-2xl shadow-xl">
+                  <p className="text-xs uppercase tracking-widest text-gray-400 font-bold">
+                    Price
+                  </p>
+                  <h2 className="text-2xl font-black text-gray-900">
+                    $ {post.price?.toLocaleString()}
+                  </h2>
+                </div>
               </div>
             </div>
 
-            {/* DESCRIPTION */}
-            <div
-              className="mt-8 text-[#555] leading-7"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(post.postDetail?.desc || "No description available."),
-              }}
-            />
+            {/* INFO */}
+            <div className="p-5 lg:p-6 mt-30">
+
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
+
+                {/* LEFT */}
+                <div className="flex-1 min-w-0">
+
+                  <h1 className="text-2xl lg:text-3xl font-black text-gray-900 leading-tight">
+                    {post.title}
+                  </h1>
+
+                  <div className="flex items-center gap-2 mt-3 text-gray-500">
+                    <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                      <img
+                        src="/pin.png"
+                        alt=""
+                        className="w-4 h-4 opacity-60"
+                      />
+                    </div>
+
+                    <p className="truncate text-sm lg:text-base">
+                      {post.address}
+                    </p>
+                  </div>
+
+                  {/* STATS */}
+                  <div className="flex flex-wrap gap-3 mt-5">
+
+                    {[
+                      {
+                        icon: "/bed.png",
+                        value: post.bedroom,
+                        label: "Beds",
+                      },
+                      {
+                        icon: "/bath.png",
+                        value: post.bathroom,
+                        label: "Baths",
+                      },
+                      {
+                        icon: "/size.png",
+                        value: post.postDetail?.size || 0,
+                        label: "Sqft",
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="flex items-center gap-3 bg-[#f8fafc] border border-gray-200 px-4 py-3 rounded-2xl"
+                      >
+                        <img
+                          src={item.icon}
+                          alt=""
+                          className="w-4 h-4 opacity-60"
+                        />
+
+                        <div>
+                          <p className="text-sm font-bold text-gray-900 leading-none">
+                            {item.value}
+                          </p>
+
+                          <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold mt-1">
+                            {item.label}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* USER CARD */}
+                <div className="bg-[#f8fafc] border border-gray-200 rounded-3xl p-4 flex items-center gap-4 min-w-[260px]">
+
+                  <img
+                    src={post.user?.avatar || "/noavatar.jpg"}
+                    alt=""
+                    className="w-14 h-14 rounded-2xl object-cover"
+                  />
+
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 text-sm">
+                      {post.user?.username || "Agent"}
+                    </h3>
+
+                    <p className="text-xs text-gray-400 mt-1">
+                      Property Owner
+                    </p>
+                  </div>
+
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                </div>
+              </div>
+
+              {/* DESCRIPTION */}
+              <div className="mt-6 pt-6 border-t border-gray-100">
+
+                <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">
+                  Overview
+                </h3>
+
+                <div
+                  className="text-sm leading-7 text-gray-600 max-w-none
+                  [&_p]:mb-3
+                  [&_strong]:text-gray-900
+                  [&_h1]:text-gray-900
+                  [&_h2]:text-gray-900"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      post.postDetail?.desc ||
+                        "No description available."
+                    ),
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="flex-[2] bg-[#fcf5f3] h-full overflow-y-auto p-6 md:flex-none md:h-auto md:overflow-visible pb-12">
-        <div className="flex flex-col gap-6">
+      <div className="hidden xl:flex flex-col h-screen border-l border-gray-200 bg-white">
 
-          {/* GENERAL */}
-          <div>
-            <p className="font-bold text-lg mb-3">General</p>
-            <div className="flex flex-col gap-4 p-5 bg-white rounded-[10px]">
-              <div className="flex items-center gap-[10px]">
-                <img src="/utility.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
-                <div>
-                  <span className="font-bold block text-sm">Utilities</span>
-                  <p className="text-xs text-gray-500">
-                    {post.postDetail?.utilities === "owner"
-                      ? "Owner is responsible"
-                      : "Tenant is responsible"}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-[10px]">
-                <img src="/pet.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
-                <div>
-                  <span className="font-bold block text-sm">Pet Policy</span>
-                  <p className="text-xs text-gray-500">
-                    {post.postDetail?.pet === "allowed" ? "Pets Allowed" : "Pets not Allowed"}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-[10px]">
-                <img src="/fee.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
-                <div>
-                  <span className="font-bold block text-sm">Income Policy</span>
-                  <p className="text-xs text-gray-500">
-                    {post.postDetail?.income || "No requirements"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-thin scrollbar-thumb-gray-200">
 
-          {/* SIZES */}
-          <div>
-            <p className="font-bold text-lg mb-3">Sizes</p>
-            <div className="flex justify-between gap-2 lg:text-xs">
-              <div className="flex items-center gap-2 bg-white p-[10px] rounded-md flex-1 justify-center">
-                <img src="/size.png" alt="" className="w-5 h-5" />
-                <span>{post.postDetail?.size || 0} sqft</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white p-[10px] rounded-md flex-1 justify-center">
-                <img src="/bed.png" alt="" className="w-5 h-5" />
-                <span>{post.bedroom} beds</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white p-[10px] rounded-md flex-1 justify-center">
-                <img src="/bath.png" alt="" className="w-5 h-5" />
-                <span>{post.bathroom} bath</span>
-              </div>
+          {/* QUICK INFO */}
+          <div className="bg-[#f8fafc] border border-gray-200 rounded-3xl p-5">
+
+            <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-5">
+              Quick Info
+            </h3>
+
+            <div className="space-y-4">
+
+              {[
+                {
+                  icon: "/utility.png",
+                  title: "Utilities",
+                  value:
+                    post.postDetail?.utilities === "owner"
+                      ? "Owner Pays"
+                      : "Tenant Pays",
+                },
+                {
+                  icon: "/pet.png",
+                  title: "Pet Policy",
+                  value:
+                    post.postDetail?.pet === "allowed"
+                      ? "Pets Allowed"
+                      : "No Pets",
+                },
+                {
+                  icon: "/fee.png",
+                  title: "Income",
+                  value:
+                    post.postDetail?.income || "No Requirements",
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="flex items-center gap-4"
+                >
+                  <div className="w-11 h-11 rounded-2xl bg-white border border-gray-200 flex items-center justify-center">
+                    <img
+                      src={item.icon}
+                      alt=""
+                      className="w-4 h-4 opacity-70"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-gray-400 font-bold">
+                      {item.title}
+                    </p>
+
+                    <p className="text-sm font-semibold text-gray-900 mt-1">
+                      {item.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* NEARBY */}
-          <div>
-            <p className="font-bold text-lg mb-3">Nearby Places</p>
-            <div className="flex flex-wrap md:flex-nowrap justify-between bg-white rounded-[10px] p-4 gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-[80px]">
-                <img src="/school.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
-                <div>
-                  <span className="font-bold text-xs block">School</span>
-                  <p className="text-[11px] text-gray-500">
-                    {post.postDetail?.school > 999
-                      ? post.postDetail.school / 1000 + "km"
-                      : (post.postDetail?.school || 0) + "m"} away
-                  </p>
+          <div className="bg-[#f8fafc] border border-gray-200 rounded-3xl p-5">
+
+            <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-5">
+              Nearby
+            </h3>
+
+            <div className="space-y-3">
+
+              {[
+                {
+                  icon: "/school.png",
+                  label: "School",
+                  value:
+                    post.postDetail?.school > 999
+                      ? post.postDetail.school / 1000 + " km"
+                      : (post.postDetail?.school || 0) + " m",
+                },
+                {
+                  icon: "/pet.png",
+                  label: "Bus Stop",
+                  value: (post.postDetail?.bus || 0) + " m",
+                },
+                {
+                  icon: "/fee.png",
+                  label: "Restaurant",
+                  value:
+                    (post.postDetail?.restaurant || 0) + " m",
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center justify-between bg-white border border-gray-200 rounded-2xl p-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={item.icon}
+                      alt=""
+                      className="w-4 h-4 opacity-60"
+                    />
+
+                    <span className="font-semibold text-sm text-gray-800">
+                      {item.label}
+                    </span>
+                  </div>
+
+                  <span className="text-xs font-bold text-gray-400">
+                    {item.value}
+                  </span>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 flex-1 min-w-[80px]">
-                <img src="/pet.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
-                <div>
-                  <span className="font-bold text-xs block">Bus Stop</span>
-                  <p className="text-[11px] text-gray-500">{post.postDetail?.bus || 0}m away</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 flex-1 min-w-[80px]">
-                <img src="/fee.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
-                <div>
-                  <span className="font-bold text-xs block">Restaurant</span>
-                  <p className="text-[11px] text-gray-500">{post.postDetail?.restaurant || 0}m away</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
           {/* MAP */}
-          <div>
-            <p className="font-bold text-lg mb-3">Location</p>
-            <div className="w-full h-[220px] rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-[#f8fafc] border border-gray-200 rounded-3xl p-4">
+
+            <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">
+              Location
+            </h3>
+
+            <div className="h-[220px] overflow-hidden rounded-2xl border border-gray-200">
               <Map items={[post]} />
             </div>
           </div>
+        </div>
 
-          {/* BUTTONS */}
-          <div className="flex justify-between gap-4 mt-2">
+        {/* ACTIONS */}
+        <div className="p-5 border-t border-gray-200 bg-white">
+
+          <div className="flex gap-3">
+
             <button
               onClick={handleCreateChat}
-              className="flex-1 p-4 flex items-center justify-center gap-2 bg-white border border-[#fece51] rounded-md cursor-pointer hover:bg-amber-50/50 transition-all active:scale-[0.98] text-sm font-medium shadow-sm"
+              className="flex-1 h-14 rounded-2xl bg-gray-900 text-white font-bold text-sm hover:bg-black transition-all duration-200 flex items-center justify-center gap-2"
             >
-              <img src="/chat.png" alt="" className="w-4 h-4" />
-              Send Message
+              <img
+                src="/chat.png"
+                alt=""
+                className="w-4 h-4 brightness-0 invert"
+              />
+              Message
             </button>
+
             <button
               onClick={handleSave}
-              style={{ backgroundColor: saved ? "#fece51" : "white" }}
-              className="flex-1 p-4 flex items-center justify-center gap-2 border border-[#fece51] rounded-md cursor-pointer transition-all text-sm font-medium shadow-sm"
+              className={`h-14 px-6 rounded-2xl border transition-all duration-200 flex items-center justify-center
+                ${
+                  saved
+                    ? "bg-amber-400 border-amber-400"
+                    : "bg-[#f8fafc] border-gray-200 hover:bg-amber-50"
+                }`}
             >
-              <img src="/save.png" alt="" className="w-4 h-4" />
-              {saved ? "Place Saved" : "Save Place"}
+              <img
+                src="/save.png"
+                alt=""
+                className={`w-4 h-4 ${
+                  saved ? "brightness-0 invert" : "opacity-70"
+                }`}
+              />
             </button>
           </div>
-
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 function PostDetailView() {
