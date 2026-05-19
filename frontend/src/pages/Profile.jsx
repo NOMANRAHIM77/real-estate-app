@@ -1,11 +1,11 @@
-import Chat from "../../components/chat/Chat";
-import List from "../../components/list/List";
+import React, { Suspense, useContext } from "react";
+import List from "../components/List";
+import Chat from "../components/Chat";
 import apiRequest from "../lib/apiRequest";
 import { Await, Link, useLoaderData, useNavigate } from "react-router-dom";
-import { Suspense, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
-function ProfilePage() {
+const Profile = () => {
   const data = useLoaderData();
   const { updateUser, currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -14,102 +14,179 @@ function ProfilePage() {
     try {
       await apiRequest.post("/auth/logout");
       updateUser(null);
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       console.log(err);
     }
   };
 
-  return (
-    <div className="flex flex-col md:flex-row h-full overflow-hidden">
-      {/* DETAILS SECTION */}
-      <div className="flex-[3] overflow-y-auto pb-12 md:pb-0 h-full">
-        <div className="px-4 md:pr-12 flex flex-col gap-12">
-          
-          {/* USER INFO TITLE */}
-          <div className="flex items-center justify-between mt-8">
-            <h1 className="text-3xl font-light">User Information</h1>
-            <Link to="/profile/update">
-              <button className="px-6 py-3 bg-[#fece51] cursor-pointer hover:bg-[#e6b947] transition-colors rounded-md">
-                Update Profile
+return (
+  <div className="flex flex-col lg:flex-row h-full gap-0">
+
+    {/* LEFT SIDE */}
+    <div className="flex-[3] overflow-y-auto pb-16 pr-0 lg:pr-8
+      [&::-webkit-scrollbar]:w-1.5
+      [&::-webkit-scrollbar-track]:bg-white
+      [&::-webkit-scrollbar-thumb]:bg-gray-200
+      [&::-webkit-scrollbar-thumb]:rounded-full">
+      <div className="flex flex-col gap-8">
+
+        {/* USER INFO CARD */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="p-6 flex flex-col gap-5">
+
+            {/* Avatar + Info */}
+            <div className="flex items-center gap-5 flex-wrap">
+              <div className="relative flex-shrink-0">
+                <img
+                  src={currentUser?.avatar || "/noavatar.png"}
+                  className="w-20 h-20 rounded-2xl object-cover ring-2 ring-gray-200 shadow-sm"
+                />
+                <div className="absolute bottom-1 right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white shadow-sm" />
+              </div>
+              <div className="flex flex-col gap-1 flex-1 min-w-0">
+                <p className="text-gray-900 text-xl font-bold truncate">{currentUser?.username}</p>
+                <p className="text-gray-400 text-sm break-all">{currentUser?.email}</p>
+                <span className="inline-flex items-center gap-1.5 text-xs text-green-600 font-semibold mt-0.5">
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full inline-block" />
+                  Online
+                </span>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-100" />
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <Link to="/updateprofile">
+                <button className="flex items-center gap-2 px-5 py-2.5 bg-[#fece51] hover:bg-yellow-400 text-gray-900 rounded-xl font-semibold text-sm transition-all duration-200 hover:shadow-md hover:scale-105 shadow-sm">
+                  ✏️ Edit Profile
+                </button>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-red-50 text-gray-500 hover:text-red-500 rounded-xl font-semibold text-sm transition-all duration-200 border border-gray-200 hover:border-red-200 hover:scale-105"
+              >
+                🚪 Logout
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* MY LISTINGS */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">My Listings</h2>
+              <p className="text-sm text-gray-400 mt-0.5">Properties you've posted</p>
+            </div>
+            <Link to="/newpost">
+              <button className="flex items-center gap-2 px-5 py-2.5 bg-[#fece51] hover:bg-yellow-400 text-gray-900 rounded-xl font-semibold text-sm transition-all duration-200 hover:shadow-md hover:scale-105 shadow-sm">
+                + New Listing
               </button>
             </Link>
           </div>
 
-          {/* INFO CONTENT */}
-          <div className="flex flex-col gap-5">
-            <span className="flex items-center gap-5">
-              Avatar:
-              <img 
-                src={currentUser.avatar || "/noavatar.jpg"} 
-                alt="User Avatar" 
-                className="w-10 h-10 rounded-full object-cover"
-              />
-            </span>
-            <span className="flex items-center gap-5">
-              Username: <b className="font-semibold">{currentUser.username}</b>
-            </span>
-            <span className="flex items-center gap-5">
-              E-mail: <b className="font-semibold">{currentUser.email}</b>
-            </span>
-            <button 
-              onClick={handleLogout}
-              className="w-max bg-teal-600 text-white px-5 py-2.5 rounded-md cursor-pointer hover:bg-teal-700 transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-
-          {/* MY LIST SECTION */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-light">My List</h1>
-            <Link to="/add">
-              <button className="px-6 py-3 bg-[#fece51] cursor-pointer hover:bg-[#e6b947] transition-colors rounded-md">
-                Create New Post
-              </button>
-            </Link>
-          </div>
-          
-          <Suspense fallback={<p className="animate-pulse">Loading posts...</p>}>
+          <Suspense fallback={
+            <div className="flex items-center gap-3 py-10 text-gray-400 justify-center">
+              <div className="w-5 h-5 border-2 border-gray-200 border-t-amber-400 rounded-full animate-spin" />
+              <span className="text-sm">Loading listings...</span>
+            </div>
+          }>
             <Await
               resolve={data.postResponse}
-              errorElement={<p className="text-red-500">Error loading posts!</p>}
+              errorElement={
+                <div className="py-4 px-5 bg-red-50 rounded-2xl text-red-500 text-sm border border-red-100">
+                  Failed to load listings. Please refresh.
+                </div>
+              }
             >
-              {(postResponse) => <List posts={postResponse.data.userPosts} />}
-            </Await>
-          </Suspense>
-
-          {/* SAVED LIST SECTION */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-light">Saved List</h1>
-          </div>
-          
-          <Suspense fallback={<p className="animate-pulse">Loading saved posts...</p>}>
-            <Await
-              resolve={data.postResponse}
-              errorElement={<p className="text-red-500">Error loading posts!</p>}
-            >
-              {(postResponse) => <List posts={postResponse.data.savedPosts} />}
+              {(response) => {
+                const posts = response?.data?.userPosts || response?.data || [];
+                return posts.length > 0
+                  ? <List post={posts} />
+                  : (
+                    <div className="py-14 flex flex-col items-center justify-center text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                      <div className="text-5xl mb-3">🏠</div>
+                      <p className="text-gray-700 font-semibold">No listings yet</p>
+                      <p className="text-gray-400 text-sm mt-1">Create your first property listing</p>
+                    </div>
+                  );
+              }}
             </Await>
           </Suspense>
         </div>
-      </div>
 
-      {/* CHAT SECTION */}
-      <div className="flex-[2] bg-[#fcf5f3] h-full md:h-full">
-        <div className="px-5 h-full">
-          <Suspense fallback={<p className="p-5">Loading chats...</p>}>
+        {/* SAVED LISTINGS */}
+        <div className="flex flex-col gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Saved Places</h2>
+            <p className="text-sm text-gray-400 mt-0.5">Properties you've bookmarked</p>
+          </div>
+
+          <Suspense fallback={
+            <div className="flex items-center gap-3 py-10 text-gray-400 justify-center">
+              <div className="w-5 h-5 border-2 border-gray-200 border-t-amber-400 rounded-full animate-spin" />
+              <span className="text-sm">Loading saved places...</span>
+            </div>
+          }>
             <Await
-              resolve={data.chatResponse}
-              errorElement={<p className="p-5 text-red-500">Error loading chats!</p>}
+              resolve={data.postResponse}
+              errorElement={
+                <div className="py-4 px-5 bg-red-50 rounded-2xl text-red-500 text-sm border border-red-100">
+                  Failed to load saved places. Please refresh.
+                </div>
+              }
             >
-              {(chatResponse) => <Chat chats={chatResponse.data}/>}
+              {(response) => {
+                const saved = response?.data?.savedPosts || [];
+                return saved.length > 0
+                  ? <List post={saved} />
+                  : (
+                    <div className="py-14 flex flex-col items-center justify-center text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                      <div className="text-5xl mb-3">🔖</div>
+                      <p className="text-gray-700 font-semibold">No saved places</p>
+                      <p className="text-gray-400 text-sm mt-1">Browse listings and save your favorites</p>
+                    </div>
+                  );
+              }}
             </Await>
           </Suspense>
         </div>
+
       </div>
     </div>
-  );
-}
 
-export default ProfilePage;
+    {/* RIGHT SIDE — CHAT PANEL */}
+    <div className="flex-[2] lg:sticky lg:top-0 lg:h-screen bg-white border-l border-gray-200 shadow-sm flex flex-col">
+      <div className="px-5 pt-6 pb-4 border-b border-gray-100">
+        <h2 className="text-xl font-bold text-gray-900">Messages</h2>
+        <p className="text-sm text-gray-400 mt-0.5">Your conversations</p>
+      </div>
+      <div className="flex-1 overflow-hidden px-4 py-4">
+        <Suspense fallback={
+          <div className="flex items-center gap-3 py-8 text-gray-400 justify-center">
+            <div className="w-5 h-5 border-2 border-gray-200 border-t-amber-400 rounded-full animate-spin" />
+            <span className="text-sm">Loading chats...</span>
+          </div>
+        }>
+          <Await
+            resolve={data.chatResponse}
+            errorElement={
+              <div className="py-4 px-5 bg-red-50 rounded-2xl text-red-500 text-sm border border-red-100">
+                Failed to load chats. Please refresh.
+              </div>
+            }
+          >
+            {(response) => <Chat chats={response?.data || []} />}
+          </Await>
+        </Suspense>
+      </div>
+    </div>
+
+  </div>
+);
+};
+
+export default Profile;
