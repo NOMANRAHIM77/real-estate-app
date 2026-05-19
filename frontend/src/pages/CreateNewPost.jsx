@@ -94,212 +94,284 @@ function CreateNewPost() {
   const inputStyle =
     "p-4 border border-gray-400 rounded-[5px] outline-none focus:border-teal-600 transition-colors text-gray-700 w-full";
 
-  return (
-    <div className="flex flex-col xl:flex-row h-screen w-full overflow-hidden">
+return (
+  <div className="h-screen w-full overflow-hidden bg-[#f6f7fb] flex">
 
-      {/* LEFT FORM */}
-      <div className={`flex-[3] overflow-y-auto h-full px-6 transition-all duration-300 ${showPreview ? "hidden xl:block" : "block"}`}>
-        <div className="my-[30px] mb-[100px]">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-light text-gray-800">Add New Post</h1>
-            <button
-              type="button"
-              onClick={() => { updatePreviewStructure(); setShowPreview(true); }}
-              className="xl:hidden px-4 py-2 bg-gray-800 text-white rounded text-sm font-medium"
-            >
-              See Visual Preview
-            </button>
-          </div>
+    {/* LEFT - FORM */}
+    <div className={`flex-1 overflow-y-auto p-6 ${showPreview ? "hidden xl:block" : "block"}`}>
 
-          <form ref={formRef} onSubmit={handleSubmit} className="flex flex-wrap justify-between gap-5">
+      {/* HEADER */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900">Create Listing</h1>
+          <p className="text-sm text-gray-500">Add property details below</p>
+        </div>
 
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="title" className="text-sm font-medium text-gray-600">Title</label>
-              <input id="title" name="title" type="text" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
+        <button
+          type="button"
+          onClick={() => {
+            updatePreviewStructure();
+            setShowPreview(true);
+          }}
+          className="xl:hidden px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-semibold"
+        >
+          Preview
+        </button>
+      </div>
 
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="price" className="text-sm font-medium text-gray-600">Price</label>
-              <input id="price" name="price" type="number" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
+      {/* FORM CARD */}
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col gap-6"
+      >
 
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="address" className="text-sm font-medium text-gray-600">Address</label>
-              <input id="address" name="address" type="text" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
+        {/* GRID INPUTS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
 
-            <div className="w-full h-auto md:h-[320px] flex flex-col gap-1.5 mb-14 md:mb-0 [&_.ql-editor]:h-[200px] [&_.ql-editor]:text-base">
-              <label htmlFor="desc" className="text-sm font-medium text-gray-600">Description</label>
-              <ReactQuill
-                theme="snow"
-                value={value}
-                onChange={(val) => { setValue(val); updatePreviewStructure(val); }}
+          {[
+            ["Title", "title", "text"],
+            ["Price", "price", "number"],
+            ["Address", "address", "text"],
+            ["City", "city", "text"],
+            ["Bedrooms", "bedroom", "number"],
+            ["Bathrooms", "bathroom", "number"],
+            ["Latitude", "latitude", "text"],
+            ["Longitude", "longitude", "text"],
+            ["Income Policy", "income", "text"],
+            ["Size (sqft)", "size", "number"],
+            ["School (m)", "school", "number"],
+            ["Bus (m)", "bus", "number"],
+            ["Restaurant (m)", "restaurant", "number"],
+          ].map(([label, name, type]) => (
+            <div key={name} className="flex flex-col gap-1.5">
+
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                {label}
+              </label>
+
+              <input
+                name={name}
+                type={type}
+                className="h-11 px-3 rounded-xl border border-gray-200 focus:border-gray-900 outline-none text-sm"
+                onChange={() => updatePreviewStructure()}
               />
             </div>
+          ))}
 
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="city" className="text-sm font-medium text-gray-600">City</label>
-              <input id="city" name="city" type="text" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="bedroom" className="text-sm font-medium text-gray-600">Bedroom Number</label>
-              <input min={1} id="bedroom" name="bedroom" type="number" defaultValue={1} className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="bathroom" className="text-sm font-medium text-gray-600">Bathroom Number</label>
-              <input min={1} id="bathroom" name="bathroom" type="number" defaultValue={1} className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="latitude" className="text-sm font-medium text-gray-600">Latitude</label>
-              <input id="latitude" name="latitude" type="text" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="longitude" className="text-sm font-medium text-gray-600">Longitude</label>
-              <input id="longitude" name="longitude" type="text" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="type" className="text-sm font-medium text-gray-600">Type</label>
-              <select id="type" name="type" defaultValue="rent" className={`${inputStyle} p-[15px]`} onChange={() => updatePreviewStructure()}>
-                <option value="rent">Rent</option>
-                <option value="buy">Buy</option>
-              </select>
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="property" className="text-sm font-medium text-gray-600">Property</label>
-              <select id="property" name="property" defaultValue="apartment" className={`${inputStyle} p-[15px]`} onChange={() => updatePreviewStructure()}>
-                <option value="apartment">Apartment</option>
-                <option value="house">House</option>
-                <option value="condo">Condo</option>
-                <option value="land">Land</option>
-              </select>
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="utilities" className="text-sm font-medium text-gray-600">Utilities Policy</label>
-              <select id="utilities" name="utilities" defaultValue="owner" className={`${inputStyle} p-[15px]`} onChange={() => updatePreviewStructure()}>
-                <option value="owner">Owner is responsible</option>
-                <option value="tenant">Tenant is responsible</option>
-                <option value="shared">Shared</option>
-              </select>
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="pet" className="text-sm font-medium text-gray-600">Pet Policy</label>
-              <select id="pet" name="pet" defaultValue="allowed" className={`${inputStyle} p-[15px]`} onChange={() => updatePreviewStructure()}>
-                <option value="allowed">Allowed</option>
-                <option value="not-allowed">Not Allowed</option>
-              </select>
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="income" className="text-sm font-medium text-gray-600">Income Policy</label>
-              <input id="income" name="income" type="text" placeholder="Income Policy" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="size" className="text-sm font-medium text-gray-600">Total Size (sqft)</label>
-              <input min={0} id="size" name="size" type="number" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="school" className="text-sm font-medium text-gray-600">School</label>
-              <input min={0} id="school" name="school" type="number" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="bus" className="text-sm font-medium text-gray-600">Bus</label>
-              <input min={0} id="bus" name="bus" type="number" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <div className="w-full md:w-[30%] flex flex-col gap-1.5">
-              <label htmlFor="restaurant" className="text-sm font-medium text-gray-600">Restaurant</label>
-              <input min={0} id="restaurant" name="restaurant" type="number" className={inputStyle} onChange={() => updatePreviewStructure()} />
-            </div>
-
-            <button type="submit" className="w-full md:w-[30%] p-4 bg-teal-600 text-white font-bold rounded-[5px] hover:bg-teal-700 transition-colors cursor-pointer self-end h-[56px]">
-              Publish Post
-            </button>
-
-            {error && <span className="w-full text-red-500 text-sm font-medium mt-2">{error}</span>}
-          </form>
-        </div>
-      </div>
-
-      {/* RIGHT PREVIEW PANEL */}
-      <div className={`flex-[2] bg-[#fcf5f3] h-full flex flex-col relative border-l border-gray-200 ${showPreview ? "block w-full" : "hidden xl:flex"}`}>
-        <div className="p-4 flex gap-4 bg-white border-b border-gray-200 justify-between items-center xl:hidden">
-          <span className="font-semibold text-gray-700">Live Post Preview</span>
-          <button
-            onClick={() => setShowPreview(false)}
-            className="px-3 py-1 bg-teal-600 text-white rounded text-xs font-semibold"
-          >
-            Back to Editor Form
-          </button>
-        </div>
-
-        <div className="p-4 bg-white border-b border-gray-100 flex flex-col items-center gap-3">
-          <div className="w-full flex flex-wrap gap-2 justify-center max-h-[110px] overflow-y-auto">
-            {images.length === 0 && (
-              <span className="text-xs text-gray-400 py-2">No listing images added yet</span>
-            )}
-            {images.map((image, index) => (
-              <img src={image} key={index} alt="" className="w-16 h-12 object-cover rounded border border-gray-200" />
-            ))}
+          {/* TYPE */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-gray-500 uppercase">
+              Type
+            </label>
+            <select
+              name="type"
+              className="h-11 px-3 rounded-xl border border-gray-200"
+              onChange={() => updatePreviewStructure()}
+            >
+              <option value="rent">Rent</option>
+              <option value="buy">Buy</option>
+            </select>
           </div>
-          <UploadWidget
-            uwConfig={{
-              multiple: true,
-              cloudName: "lamadev",
-              uploadPreset: "estate",
-              folder: "posts",
-            }}
-            setState={(updateFn) => {
-              setImages((prev) => {
-                const nextImages = typeof updateFn === "function" ? updateFn(prev) : updateFn;
-                setTimeout(() => updatePreviewStructure(value, nextImages), 50);
-                return nextImages;
-              });
-            }}
-          />
+
+          {/* PROPERTY */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-gray-500 uppercase">
+              Property
+            </label>
+            <select
+              name="property"
+              className="h-11 px-3 rounded-xl border border-gray-200"
+              onChange={() => updatePreviewStructure()}
+            >
+              <option value="apartment">Apartment</option>
+              <option value="house">House</option>
+              <option value="condo">Condo</option>
+              <option value="land">Land</option>
+            </select>
+          </div>
+
+          {/* UTILITIES */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-gray-500 uppercase">
+              Utilities
+            </label>
+            <select
+              name="utilities"
+              className="h-11 px-3 rounded-xl border border-gray-200"
+              onChange={() => updatePreviewStructure()}
+            >
+              <option value="owner">Owner pays</option>
+              <option value="tenant">Tenant pays</option>
+              <option value="shared">Shared</option>
+            </select>
+          </div>
+
+          {/* PET */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-gray-500 uppercase">
+              Pet Policy
+            </label>
+            <select
+              name="pet"
+              className="h-11 px-3 rounded-xl border border-gray-200"
+              onChange={() => updatePreviewStructure()}
+            >
+              <option value="allowed">Allowed</option>
+              <option value="not-allowed">Not Allowed</option>
+            </select>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
-          {previewData ? (
-            <div className="border border-gray-200 rounded-xl bg-white shadow-lg overflow-hidden h-full">
-              {/*
-                PreviewDataContext.Provider is imported from PostDetailView.
-                PostDetailView checks this context first — if it has data,
-                it renders PostDetailContent directly without calling useLoaderData.
-              */}
-              <PreviewDataContext.Provider value={previewData}>
-                <PostDetailView />
-              </PreviewDataContext.Provider>
-            </div>
-          ) : (
-            <div className="h-full flex flex-col items-center justify-center text-center p-6 gap-2">
-              <p className="text-gray-500 text-sm">
-                Fill out the left form attributes to construct mock templates inline.
-              </p>
-              <button
-                type="button"
-                onClick={() => updatePreviewStructure()}
-                className="px-4 py-2 bg-teal-600 text-white rounded-md font-medium text-xs hover:bg-teal-700 transition-all shadow-sm"
-              >
-                Force Structure Compilation
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+        {/* DESCRIPTION */}
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold text-gray-500 uppercase">
+            Description
+          </label>
 
+          <div className="border border-gray-200 rounded-2xl overflow-hidden">
+            <ReactQuill
+              theme="snow"
+              value={value}
+              onChange={(val) => {
+                setValue(val);
+                updatePreviewStructure(val);
+              }}
+            />
+          </div>
+        </div>
+
+        {/* SUBMIT */}
+        <button
+          type="submit"
+          className="h-12 bg-gray-900 text-white rounded-2xl font-semibold hover:bg-black transition"
+        >
+          Publish Listing
+        </button>
+
+        {error && (
+          <p className="text-sm text-red-500 font-medium">{error}</p>
+        )}
+      </form>
     </div>
-  );
+
+  {/* PREVIEW */}
+<div className="flex-1 flex flex-col overflow-hidden">
+
+  {/* HEADER */}
+  <div className="p-4 border-b flex items-center justify-between shrink-0">
+    <p className="font-semibold text-gray-800">Live Preview</p>
+
+    <button
+      onClick={() => setShowPreview(false)}
+      className="xl:hidden text-xs px-3 py-1 bg-gray-900 text-white rounded-lg"
+    >
+      Back
+    </button>
+  </div>
+
+  {/* PREVIEW CONTENT */}
+  <div className="flex-1 overflow-hidden bg-gray-50">
+
+    {previewData ? (
+      <div className="h-full overflow-y-auto p-4">
+
+        <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-5">
+
+          {/* TITLE + PRICE */}
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-gray-900 leading-snug">
+              {previewData.title}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {previewData.address}
+            </p>
+
+            <div className="inline-block mt-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-full">
+              ${previewData.price?.toLocaleString()}
+            </div>
+          </div>
+
+          {/* META */}
+          <div className="grid grid-cols-2 gap-3">
+
+            <div className="p-3 rounded-xl bg-gray-50 border">
+              <p className="text-xs text-gray-500">Type</p>
+              <p className="font-semibold text-gray-800 capitalize">
+                {previewData.type}
+              </p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-gray-50 border">
+              <p className="text-xs text-gray-500">Property</p>
+              <p className="font-semibold text-gray-800 capitalize">
+                {previewData.property}
+              </p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-gray-50 border">
+              <p className="text-xs text-gray-500">Bedrooms</p>
+              <p className="font-semibold text-gray-800">
+                {previewData.bedroom}
+              </p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-gray-50 border">
+              <p className="text-xs text-gray-500">Bathrooms</p>
+              <p className="font-semibold text-gray-800">
+                {previewData.bathroom}
+              </p>
+            </div>
+
+          </div>
+
+          {/* LOCATION */}
+          <div className="p-3 rounded-xl border bg-gray-50">
+            <p className="text-xs text-gray-500">Location</p>
+            <p className="font-medium text-gray-800">
+              {previewData.city || "No city"} | {previewData.address}
+            </p>
+          </div>
+
+          {/* DESCRIPTION */}
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Description
+            </p>
+
+            <div
+              className="text-sm text-gray-700 leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html:
+                  previewData.postDetail?.desc ||
+                  "<p>No description provided</p>",
+              }}
+            />
+          </div>
+
+          {/* EXTRA INFO */}
+          <div className="border-t pt-4 grid grid-cols-2 gap-3 text-sm">
+
+            <p><span className="text-gray-500">Utilities:</span> {previewData.postDetail?.utilities}</p>
+            <p><span className="text-gray-500">Pet:</span> {previewData.postDetail?.pet}</p>
+            <p><span className="text-gray-500">Income:</span> {previewData.postDetail?.income}</p>
+            <p><span className="text-gray-500">Size:</span> {previewData.postDetail?.size} sqft</p>
+
+          </div>
+
+        </div>
+
+      </div>
+    ) : (
+      <div className="h-full flex items-center justify-center text-center text-gray-500 text-sm p-6">
+        Fill form to generate preview
+      </div>
+    )}
+
+  </div>
+</div>
+  </div>
+);
 }
 
 export default CreateNewPost;
