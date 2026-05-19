@@ -1,15 +1,19 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // 1. Import Context
+import { AuthContext } from "../context/AuthContext";
+import { useNotificationStore } from "../lib/notificationStore";
 
 function Navbar() {
   const [open, setOpen] = useState(false);
-  
-  // 2. Consume currentUser from context
   const { currentUser } = useContext(AuthContext);
+  const { number, fetch } = useNotificationStore();
 
-  // Placeholder for notification count (you can move this to a context later)
-  const number = 0; 
+  // Fetch unseen message count on mount / when user changes
+  useEffect(() => {
+    if (currentUser) {
+      fetch();
+    }
+  }, [currentUser, fetch]);
 
   return (
     <nav className="h-[100px] flex justify-between items-center px-4 md:px-8 relative z-50">
@@ -37,9 +41,12 @@ function Navbar() {
               className="w-10 h-10 rounded-full object-cover mr-5"
             />
             <span className="hidden sm:inline mr-5">{currentUser.username}</span>
-            <Link to="/profile" className="relative px-6 py-3 bg-[#fece51] cursor-pointer border-none flex items-center transition-all hover:scale-105">
+            <Link
+              to="/profile"
+              className="relative px-6 py-3 bg-[#fece51] cursor-pointer border-none flex items-center transition-all hover:scale-105"
+            >
               {number > 0 && (
-                <div className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+                <div className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
                   {number}
                 </div>
               )}
@@ -58,7 +65,7 @@ function Navbar() {
         {/* MOBILE MENU ICON */}
         <div className="sm:hidden z-[999] ml-4">
           <img
-            src={open ? "/close.png" : "/menu.png"} // Toggle icon if you have a close icon
+            src={open ? "/close.png" : "/menu.png"}
             alt="Menu"
             className="w-9 h-9 cursor-pointer"
             onClick={() => setOpen((prev) => !prev)}
@@ -66,26 +73,25 @@ function Navbar() {
         </div>
 
         {/* MOBILE MENU OVERLAY */}
-        {/* MOBILE MENU OVERLAY */}
-<div
-  className={`fixed top-0 transition-all duration-700 ease-in-out bg-black text-white h-screen w-1/2 flex flex-col items-center justify-center text-2xl gap-8 sm:hidden z-[998] ${
-    open ? "right-0" : "-right-1/2"
-  }`}
->
-  <Link to="/" onClick={() => setOpen(false)}>Home</Link>
-  <Link to="/" onClick={() => setOpen(false)}>About</Link>
-  <Link to="/" onClick={() => setOpen(false)}>Contact</Link>
-  <Link to="/" onClick={() => setOpen(false)}>Agents</Link>
-  
-  {!currentUser ? (
-    <>
-      <Link to="/login" onClick={() => setOpen(false)}>Sign in</Link>
-      <Link to="/signup" onClick={() => setOpen(false)}>Sign up</Link>
-    </>
-  ) : (
-    <Link to="/profile" onClick={() => setOpen(false)}>Profile</Link>
-  )}
-</div>
+        <div
+          className={`fixed top-0 transition-all duration-700 ease-in-out bg-black text-white h-screen w-1/2 flex flex-col items-center justify-center text-2xl gap-8 sm:hidden z-[998] ${
+            open ? "right-0" : "-right-1/2"
+          }`}
+        >
+          <Link to="/" onClick={() => setOpen(false)}>Home</Link>
+          <Link to="/" onClick={() => setOpen(false)}>About</Link>
+          <Link to="/" onClick={() => setOpen(false)}>Contact</Link>
+          <Link to="/" onClick={() => setOpen(false)}>Agents</Link>
+
+          {!currentUser ? (
+            <>
+              <Link to="/login" onClick={() => setOpen(false)}>Sign in</Link>
+              <Link to="/signup" onClick={() => setOpen(false)}>Sign up</Link>
+            </>
+          ) : (
+            <Link to="/profile" onClick={() => setOpen(false)}>Profile</Link>
+          )}
+        </div>
       </div>
     </nav>
   );
