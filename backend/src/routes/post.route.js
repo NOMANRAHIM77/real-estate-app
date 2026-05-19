@@ -1,13 +1,13 @@
-import express from "express";
-import {verifyToken} from "../middleware/verifyToken.js";
-import { addPost, deletePost, getPost, getPosts, updatePost } from "../controllers/post.controller.js";
+import express from "express"
+ import { verifyToken } from "../middleware/verifyToken.js"
+import postController from "../controllers/post.controller.js"
 
-const router = express.Router();
+const router = express.Router()
 
-router.get("/", getPosts);
-router.get("/:id", getPost);
-router.post("/", verifyToken, addPost);
-router.put("/:id", verifyToken, updatePost);
-router.delete("/:id", verifyToken, deletePost);
+router.get("/", postController.getPosts)
+router.get("/:id", postController.getPost)  // Remove verifyToken — getPost already handles optional token internally
+router.post("/", verifyToken, postController.addPost)
+router.put("/:id", verifyToken, postController.updatePost)
+router.delete("/:id", verifyToken, postController.deletePost)
 
-export default router;
+export default router
