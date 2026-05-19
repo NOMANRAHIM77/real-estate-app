@@ -20,19 +20,22 @@ function Filter() {
   };
 
   const handleFilter = () => {
-    setSearchParams(query);
+    // 🛠️ FIX: Strips out empty key/values from state before modifying current search parameters
+    const cleanedQuery = Object.fromEntries(
+      Object.entries(query).filter(([_, value]) => value !== "")
+    );
+    setSearchParams(cleanedQuery);
   };
 
-  // Reusable styling class bundle for the inputs and selects
   const inputStyle = "w-full md:w-[100px] p-2.5 border border-[#e0e0e0] rounded-[5px] text-sm outline-none";
 
   return (
     <div className="flex flex-col gap-2.5 w-full">
       <h1 className="font-light text-2xl">
-        Search results for <b className="font-semibold">{searchParams.get("city")}</b>
+        Search results for <b className="font-semibold">{searchParams.get("city") || "All Cities"}</b>
       </h1>
 
-      {/* TOP SECTION */}
+      
       <div className="w-full">
         <div className="flex flex-col gap-[2px]">
           <label htmlFor="city" className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Location</label>
@@ -48,7 +51,7 @@ function Filter() {
         </div>
       </div>
 
-      {/* BOTTOM SECTION */}
+      
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div className="flex flex-col gap-[2px] flex-1 min-w-[120px] md:flex-none">
           <label htmlFor="type" className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Type</label>
@@ -84,6 +87,7 @@ function Filter() {
 
         <div className="flex flex-col gap-[2px] flex-1 min-w-[120px] md:flex-none">
           <label htmlFor="minPrice" className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Min Price</label>
+          
           <input
             type="number"
             id="minPrice"
@@ -97,8 +101,9 @@ function Filter() {
 
         <div className="flex flex-col gap-[2px] flex-1 min-w-[120px] md:flex-none">
           <label htmlFor="maxPrice" className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Max Price</label>
+          
           <input
-            type="text"
+            type="number"
             id="maxPrice"
             name="maxPrice"
             placeholder="any"
@@ -110,8 +115,9 @@ function Filter() {
 
         <div className="flex flex-col gap-[2px] flex-1 min-w-[120px] md:flex-none">
           <label htmlFor="bedroom" className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Bedroom</label>
+          
           <input
-            type="text"
+            type="number"
             id="bedroom"
             name="bedroom"
             placeholder="any"
@@ -121,7 +127,6 @@ function Filter() {
           />
         </div>
 
-        {/* SEARCH BUTTON */}
         <button 
           onClick={handleFilter} 
           className="w-full md:w-[100px] h-[42px] flex items-center justify-center border-none cursor-pointer bg-[#fece51] hover:bg-[#e4b844] transition-colors rounded-[5px]"
