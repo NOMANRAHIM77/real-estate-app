@@ -1,25 +1,18 @@
 import Slider from "../components/Slider";
 import Map from "../components/Map";
-import { useNavigate, useLoaderData } from "react-router-dom";
+import { useNavigate, useLoaderData, Await } from "react-router-dom";
 import DOMPurify from "dompurify";
-import { useContext, useState } from "react";
+import { useContext, useState, Suspense, createContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import apiRequest from "../lib/apiRequest";
 
-function PostDetailView() {
-  const post = useLoaderData();
+// Preview context - created here and exported so CreateNewPost can import it
+export const PreviewDataContext = createContext(null);
+
+function PostDetailContent({ post }) {
   const [saved, setSaved] = useState(post?.isSaved || false);
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  // Safeguard in case loader encounters an unexpected payload status
-  if (!post) {
-    return (
-      <div className="flex h-full items-center justify-center text-gray-500 font-medium">
-        Loading listing parameters...
-      </div>
-    );
-  }
 
   const handleSave = async () => {
     if (!currentUser) {
@@ -35,34 +28,54 @@ function PostDetailView() {
     }
   };
 
+  const handleCreateChat = async () => {
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+    if (currentUser.id === post.userId) {
+      alert("You cannot start a chat room with yourself on your own listing!");
+      return;
+    }
+    try {
+      await apiRequest.post("/chats", { receiverId: post.userId });
+      navigate("/profile");
+    } catch (err) {
+      console.error("Failed to create or navigate to chat room:", err);
+      alert("Something went wrong initializing the chat channel.");
+    }
+  };
+
   return (
-    <div className="flex h-full md:flex-col md:overflow-scroll bg-white">
-      
-      {/* LEFT CONTENT PANEL */}
-      <div className="flex-[3] h-full overflow-y-scroll md:flex-none md:h-max md:mb-[50px]">
-        <div className="pr-[50px] lg:pr-20 md:pr-0">
+    <div className="flex h-screen w-full bg-white md:flex-col md:h-auto md:overflow-visible overflow-hidden">
+
+      {/* LEFT SIDE */}
+      <div className="flex-[3] h-full overflow-y-auto p-6 md:flex-none md:h-auto md:overflow-visible">
+        <div className="pr-[30px] lg:pr-0">
+
           <Slider images={post.images || ["/no-image.png"]} />
-          
-          <div className="mt-[50px]">
-            {/* META TOP BAR */}
+
+          <div className="mt-8">
             <div className="flex justify-between sm:flex-col sm:gap-5">
-              <div className="flex flex-col gap-5">
+
+              {/* POST INFO */}
+              <div className="flex flex-col gap-4">
                 <h1 className="font-normal text-3xl text-gray-900">{post.title}</h1>
-                <div className="flex gap-1.5 items-center text-gray-400 text-sm">
-                  <img src="/pin.png" alt="Location" className="w-4 h-4" />
+                <div className="flex items-center gap-[5px] text-[#888] text-sm">
+                  <img src="/pin.png" alt="" className="w-4 h-4" />
                   <span>{post.address}</span>
                 </div>
-                <div className="p-1.5 bg-[#fece51]/40 rounded-md w-max text-xl font-light text-gray-900">
+                <div className="px-3 py-1 bg-[#fece5170] rounded-md w-max text-xl font-light">
                   $ {post.price}
                 </div>
               </div>
-              
-              {/* OWNER CARD */}
-              <div className="flex flex-col items-center justify-center gap-5 px-[50px] sm:py-5 rounded-[10px] bg-[#fece51]/20 font-semibold text-gray-800">
-                <img 
-                  src={post.user?.avatar || "/noavatar.jpg"} 
-                  alt={post.user?.username} 
-                  className="w-[50px] h-[50px] rounded-full object-cover" 
+
+              {/* USER CARD */}
+              <div className="flex flex-col items-center justify-center gap-3 px-[40px] py-4 rounded-[10px] bg-[#fece5135] font-semibold sm:py-5">
+                <img
+                  src={post.user?.avatar || "/noavatar.jpg"}
+                  alt=""
+                  className="w-[50px] h-[50px] rounded-full object-cover"
                 />
                 <span>{post.user?.username || "Agent"}</span>
               </div>
@@ -70,118 +83,174 @@ function PostDetailView() {
 
             {/* DESCRIPTION */}
             <div
-              className="mt-[50px] text-[#555] leading-6 space-y-4"
+              className="mt-8 text-[#555] leading-7"
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(post.postDetail?.desc || "No description provided."),
+                __html: DOMPurify.sanitize(post.postDetail?.desc || "No description available."),
               }}
-            ></div>
+            />
           </div>
         </div>
       </div>
 
-      {/* RIGHT SIDEBAR PANEL */}
-      <div className="flex-[2] bg-[#fcf5f3] h-full overflow-y-scroll md:flex-none md:h-max md:mb-[50px]">
-        <div className="px-5 py-0 md:p-5 flex flex-col gap-5 [&_img]:w-6 [&_img]:h-6">
-          
-          <p className="font-bold text-lg text-gray-800 mb-1">General</p>
-          
-          <div className="flex flex-col gap-5 py-5 px-2.5 bg-white rounded-[10px] shadow-sm">
-            {/* UTILITIES */}
-            <div className="flex items-center gap-2.5">
-              <img src="/utility.png" alt="" className="bg-[#fece51]/20 rounded p-0.5" />
-              <div className="text-xs">
-                <span className="font-bold text-gray-700">Utilities</span>
-                <p className="text-sm text-gray-500">
-                  {post.postDetail?.utilities === "owner" ? "Owner is responsible" : "Tenant is responsible"}
-                </p>
+      {/* RIGHT SIDE */}
+      <div className="flex-[2] bg-[#fcf5f3] h-full overflow-y-auto p-6 md:flex-none md:h-auto md:overflow-visible pb-12">
+        <div className="flex flex-col gap-6">
+
+          {/* GENERAL */}
+          <div>
+            <p className="font-bold text-lg mb-3">General</p>
+            <div className="flex flex-col gap-4 p-5 bg-white rounded-[10px]">
+              <div className="flex items-center gap-[10px]">
+                <img src="/utility.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
+                <div>
+                  <span className="font-bold block text-sm">Utilities</span>
+                  <p className="text-xs text-gray-500">
+                    {post.postDetail?.utilities === "owner"
+                      ? "Owner is responsible"
+                      : "Tenant is responsible"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-[10px]">
+                <img src="/pet.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
+                <div>
+                  <span className="font-bold block text-sm">Pet Policy</span>
+                  <p className="text-xs text-gray-500">
+                    {post.postDetail?.pet === "allowed" ? "Pets Allowed" : "Pets not Allowed"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-[10px]">
+                <img src="/fee.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
+                <div>
+                  <span className="font-bold block text-sm">Income Policy</span>
+                  <p className="text-xs text-gray-500">
+                    {post.postDetail?.income || "No requirements"}
+                  </p>
+                </div>
               </div>
             </div>
-            
-            {/* PETS */}
-            <div className="flex items-center gap-2.5">
-              <img src="/pet.png" alt="" className="bg-[#fece51]/20 rounded p-0.5" />
-              <div className="text-xs">
-                <span className="font-bold text-gray-700">Pet Policy</span>
-                <p className="text-sm text-gray-500">
-                  {post.postDetail?.pet === "allowed" ? "Pets Allowed" : "Pets not Allowed"}
-                </p>
+          </div>
+
+          {/* SIZES */}
+          <div>
+            <p className="font-bold text-lg mb-3">Sizes</p>
+            <div className="flex justify-between gap-2 lg:text-xs">
+              <div className="flex items-center gap-2 bg-white p-[10px] rounded-md flex-1 justify-center">
+                <img src="/size.png" alt="" className="w-5 h-5" />
+                <span>{post.postDetail?.size || 0} sqft</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white p-[10px] rounded-md flex-1 justify-center">
+                <img src="/bed.png" alt="" className="w-5 h-5" />
+                <span>{post.bedroom} beds</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white p-[10px] rounded-md flex-1 justify-center">
+                <img src="/bath.png" alt="" className="w-5 h-5" />
+                <span>{post.bathroom} bath</span>
               </div>
             </div>
+          </div>
 
-            {/* INCOME */}
-            <div className="flex items-center gap-2.5">
-              <img src="/fee.png" alt="" className="bg-[#fece51]/20 rounded p-0.5" />
-              <div className="text-xs">
-                <span className="font-bold text-gray-700">Income Policy</span>
-                <p className="text-sm text-gray-500">{post.postDetail?.income || "No strict requirements"}</p>
+          {/* NEARBY */}
+          <div>
+            <p className="font-bold text-lg mb-3">Nearby Places</p>
+            <div className="flex flex-wrap md:flex-nowrap justify-between bg-white rounded-[10px] p-4 gap-3">
+              <div className="flex items-center gap-2 flex-1 min-w-[80px]">
+                <img src="/school.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
+                <div>
+                  <span className="font-bold text-xs block">School</span>
+                  <p className="text-[11px] text-gray-500">
+                    {post.postDetail?.school > 999
+                      ? post.postDetail.school / 1000 + "km"
+                      : (post.postDetail?.school || 0) + "m"} away
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-1 min-w-[80px]">
+                <img src="/pet.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
+                <div>
+                  <span className="font-bold text-xs block">Bus Stop</span>
+                  <p className="text-[11px] text-gray-500">{post.postDetail?.bus || 0}m away</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-1 min-w-[80px]">
+                <img src="/fee.png" alt="" className="w-6 h-6 bg-[#fece5135] rounded" />
+                <div>
+                  <span className="font-bold text-xs block">Restaurant</span>
+                  <p className="text-[11px] text-gray-500">{post.postDetail?.restaurant || 0}m away</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <p className="font-bold text-lg text-gray-800 mb-1">Sizes</p>
-          <div className="flex justify-between lg:text-xs gap-2">
-            <div className="flex flex-1 items-center justify-center gap-2 bg-white p-2.5 rounded-[5px] shadow-sm">
-              <img src="/size.png" alt="" className="w-5 h-5" />
-              <span className="text-sm text-gray-600 font-medium">{post.postDetail?.size || 0} sqft</span>
-            </div>
-            <div className="flex flex-1 items-center justify-center gap-2 bg-white p-2.5 rounded-[5px] shadow-sm">
-              <img src="/bed.png" alt="" className="w-5 h-5" />
-              <span className="text-sm text-gray-600 font-medium">{post.bedroom} beds</span>
-            </div>
-            <div className="flex flex-1 items-center justify-center gap-2 bg-white p-2.5 rounded-[5px] shadow-sm">
-              <img src="/bath.png" alt="" className="w-5 h-5" />
-              <span className="text-sm text-gray-600 font-medium">{post.bathroom} baths</span>
+          {/* MAP */}
+          <div>
+            <p className="font-bold text-lg mb-3">Location</p>
+            <div className="w-full h-[220px] rounded-xl overflow-hidden shadow-sm">
+              <Map items={[post]} />
             </div>
           </div>
 
-          <p className="font-bold text-lg text-gray-800 mb-1">Nearby Places</p>
-          <div className="flex justify-between py-5 px-2.5 bg-white rounded-[10px] shadow-sm gap-2">
-            <div className="flex flex-col items-center text-center gap-1 flex-1">
-              <img src="/school.png" alt="" className="bg-[#fece51]/20 rounded p-1" />
-              <span className="font-bold text-xs text-gray-700">School</span>
-              <p className="text-xs text-gray-500">
-                {post.postDetail?.school > 999 ? (post.postDetail.school / 1000) + "km" : (post.postDetail?.school || 0) + "m"} away
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center gap-1 flex-1">
-              <img src="/pet.png" alt="" className="bg-[#fece51]/20 rounded p-1" />
-              <span className="font-bold text-xs text-gray-700">Bus Stop</span>
-              <p className="text-xs text-gray-500">{post.postDetail?.bus || 0}m away</p>
-            </div>
-            <div className="flex flex-col items-center text-center gap-1 flex-1">
-              <img src="/fee.png" alt="" className="bg-[#fece51]/20 rounded p-1" />
-              <span className="font-bold text-xs text-gray-700">Restaurant</span>
-              <p className="text-xs text-gray-500">{post.postDetail?.restaurant || 0}m away</p>
-            </div>
-          </div>
-
-          <p className="font-bold text-lg text-gray-800 mb-1">Location</p>
-          <div className="w-full h-[200px] rounded-xl overflow-hidden shadow-sm border border-gray-100">
-            <Map items={[post]} />
-          </div>
-
-          {/* ACTION BUTTONS */}
+          {/* BUTTONS */}
           <div className="flex justify-between gap-4 mt-2">
-            <button className="flex-1 py-4 flex items-center justify-center gap-2 bg-white border border-[#fece51] text-gray-700 font-medium rounded-[5px] cursor-pointer hover:bg-gray-50 transition-colors">
+            <button
+              onClick={handleCreateChat}
+              className="flex-1 p-4 flex items-center justify-center gap-2 bg-white border border-[#fece51] rounded-md cursor-pointer hover:bg-amber-50/50 transition-all active:scale-[0.98] text-sm font-medium shadow-sm"
+            >
               <img src="/chat.png" alt="" className="w-4 h-4" />
-              Message
+              Send Message
             </button>
             <button
               onClick={handleSave}
-              style={{
-                backgroundColor: saved ? "#fece51" : "white",
-              }}
-              className="flex-1 py-4 flex items-center justify-center gap-2 border border-[#fece51] text-gray-700 font-medium rounded-[5px] cursor-pointer transition-colors"
+              style={{ backgroundColor: saved ? "#fece51" : "white" }}
+              className="flex-1 p-4 flex items-center justify-center gap-2 border border-[#fece51] rounded-md cursor-pointer transition-all text-sm font-medium shadow-sm"
             >
               <img src="/save.png" alt="" className="w-4 h-4" />
-              {saved ? "Saved" : "Save Place"}
+              {saved ? "Place Saved" : "Save Place"}
             </button>
           </div>
 
         </div>
       </div>
-
     </div>
+  );
+}
+
+function PostDetailView() {
+  // Check if we are inside the preview context from CreateNewPost
+  const previewData = useContext(PreviewDataContext);
+
+  // PREVIEW MODE: render directly with mock data, skip loader entirely
+  if (previewData) {
+    return <PostDetailContent post={previewData} />;
+  }
+
+  // NORMAL MODE: use deferred loader data from React Router
+  return <PostDetailViewWithLoader />;
+}
+
+function PostDetailViewWithLoader() {
+  const data = useLoaderData();
+
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center text-gray-500 font-medium">
+          Loading listing...
+        </div>
+      }
+    >
+      <Await
+        resolve={data.postResponse}
+        errorElement={
+          <div className="flex h-screen items-center justify-center text-red-500 font-medium">
+            Failed to load listing. Please try again.
+          </div>
+        }
+      >
+        {(response) => <PostDetailContent post={response.data} />}
+      </Await>
+    </Suspense>
   );
 }
 
