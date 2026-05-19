@@ -2,24 +2,37 @@ import { defer } from "react-router-dom";
 import apiRequest from "./apiRequest";
 
 export const singlePageLoader = async ({ request, params }) => {
-  const res = await apiRequest("/posts/" + params.id);
-  return res.data;
-};
-export const listPageLoader = async ({ request, params }) => {
-  const query = request.url.split("?")[1];
-  const postPromise = apiRequest("/posts?" + query);
+  const postPromise = apiRequest("/posts/" + params.id);
   return defer({
     postResponse: postPromise,
   });
+};
+
+export const listPageLoader = async ({ request }) => {
+  const url = new URL(request.url);
+  const query = url.searchParams.toString();
+
+  try {
+    const postResponse = apiRequest(
+      "/posts" + (query ? `?${query}` : "")
+    );
+
+    return defer({
+      postResponse,
+    });
+  } catch (err) {
+    console.log("LIST LOADER ERROR:", err);
+
+    return defer({
+      postResponse: Promise.resolve({ data: [] }),
+    });
+  }
 };
 
 export const profileLoader = async () => {
   try {
     const postPromise = apiRequest("/users/profilePosts");
     const chatPromise = apiRequest("/chats");
-
-    console.log(postPromise);
-
     return defer({
       postResponse: postPromise,
       chatResponse: chatPromise,
