@@ -1,8 +1,9 @@
+//home
 import { useContext } from "react";
 import SearchBar from "../components/SearchBar";
 import { AuthContext } from "../context/AuthContext";
 
-function HomePage() {
+function Home() {
 
   const { currentUser } = useContext(AuthContext);
 
@@ -55,4 +56,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default Home;
