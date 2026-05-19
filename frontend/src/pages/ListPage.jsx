@@ -1,47 +1,51 @@
+import React, { Suspense } from "react";
 import Filter from "../components/Filter";
 import Card from "../components/Card";
 import Map from "../components/Map";
-import { Await, useLoaderData } from "react-router-dom";
-import { Suspense } from "react";
+import { useLoaderData, Await } from "react-router-dom"; 
 
-function ListPage() {
-  const data = useLoaderData();
+const ListPage = () => {
+  const data = useLoaderData(); 
 
   return (
-    <div className="flex h-full w-full">
-      {/* LIST CONTAINER */}
-      <div className="flex-[3] h-full">
-        <div className="h-full pr-4 md:pr-[50px] flex flex-col gap-[50px] overflow-y-auto pb-[50px]">
+    <div className="flex h-full">
+
+      {/* LEFT */}
+      <div className="flex-[3] h-full overflow-y-auto">
+        <div className="flex flex-col gap-12 pr-2 pb-10">
           <Filter />
-          
-          <Suspense fallback={<p className="animate-pulse text-gray-500">Loading listings...</p>}>
+
+          <Suspense fallback={<p>Loading posts...</p>}>
             <Await
               resolve={data.postResponse}
               errorElement={<p className="text-red-500">Error loading posts!</p>}
             >
-              {(postResponse) =>
-                postResponse.data.map((post) => (
-                  <Card key={post.id} item={post} />
-                ))
+              {(response) => {
+  const posts = response.data;
+
+  return posts?.length > 0 ? (
+    posts.map((item) => <Card key={item.id} item={item} />)
+  ) : (
+    <p className="text-gray-500">No posts found</p>
+  );
+}
               }
             </Await>
           </Suspense>
         </div>
       </div>
 
-      {/* MAP CONTAINER */}
-      <div className="hidden md:block flex-[2] h-full bg-[#fcf5f3]">
-        <Suspense fallback={<p className="p-5 text-gray-500">Loading map...</p>}>
-          <Await
-            resolve={data.postResponse}
-            errorElement={<p className="p-5 text-red-500">Error loading posts!</p>}
-          >
-            {(postResponse) => <Map items={postResponse.data} />}
+      {/* RIGHT */}
+      <div className="hidden lg:flex flex-[2] bg-[#fcf5f3] items-center justify-center">
+        <Suspense fallback={null}>
+          <Await resolve={data.postResponse}>
+            {(response) => <Map items={response.data} />}
           </Await>
         </Suspense>
       </div>
+
     </div>
   );
-}
+};
 
 export default ListPage;
