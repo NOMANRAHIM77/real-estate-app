@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs'
 import prisma from '../lib/prisma.js'; 
 import jwt from "jsonwebtoken";
 
@@ -61,4 +61,6 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
     res.clearCookie("token").status(200).json({ message: "Logout Successful" });
 };
+
+
 
